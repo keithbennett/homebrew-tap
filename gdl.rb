@@ -17,7 +17,7 @@ class Gdl < Formula
     args = std_cmake_args
     args << '-DNETCDF=OFF' << '-DHDF=OFF' << '-DHDF5=OFF' << '-DFFTW=OFF'
     args << '-DEIGEN3=OFF' << '-DPSLIB=OFF' << '-DWXWIDGETS=OFF'
-    args << '-DMAGICK=OFF'
+    args << '-DMAGICK=OFF' << '-DPYTHON=OFF'
 
     mkdir "gdl-build" do
       system "cmake", "..", *args
