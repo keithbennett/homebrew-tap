@@ -113,3 +113,58 @@ index 57ee282..25e9472 100644
  // is #defined in that case) contains configured macros that are
  // required for the core build, installed examples build, and build of
  // user applications.  Therefore, in contrast to plplot_config.h,
+
+commit 772223c638ecf5dc740c9f3dd7a6883c6d2c83d2
+Author: Alan W. Irwin <airwin@users.sourceforge.net>
+Date:   Sun Dec 7 09:06:08 2014 -0800
+
+    Adjust for internal CMake-3.1 pkg-config change.
+    
+    There is a report from Greg Jung <gvjung@gmail.com> that the
+    internal CMake command
+    
+    _pkg_check_modules_internal(0 0 ${_prefix} "${_package}")
+    
+    must be changed to
+    
+    _pkg_check_modules_internal(0 0 0 0 ${_prefix} "${_package}")
+    
+    for CMake-3.1 in order to build the cairo device properly.  Accordingly, I have made that adjustment.
+    
+    Tested by Alan W. Irwin <airwin@users> on Linux using CMake-3.0.2
+    by building the cairo device.
+    
+    N.B. currently untested for CMake-3.1.
+    
+    ToDo:
+    
+    Extensive tests on CMake-3.1 (once that version is closer to release)
+    still need to be done since the change in the pkg-config support by
+    CMake may need other adjustments as well.
+
+diff --git a/cmake/modules/pkg-config.cmake b/cmake/modules/pkg-config.cmake
+index 3f842aa..4d269bd 100644
+--- a/cmake/modules/pkg-config.cmake
++++ b/cmake/modules/pkg-config.cmake
+@@ -1,6 +1,6 @@
+ # cmake/modules/pkg-config.cmake
+ #
+-# Copyright (C) 2006  Alan W. Irwin
++# Copyright (C) 2006-2015 Alan W. Irwin
+ #
+ # This file is part of PLplot.
+ #
+@@ -94,7 +94,12 @@ macro(pkg_check_pkgconfig _package _include_DIR _link_DIR _link_FLAGS _cflags _v
+     set(_xprefix ${_prefix})
+   endif(FORCE_EXTERNAL_STATIC)
+   
+-  _pkg_check_modules_internal(0 0 ${_prefix} "${_package}")
++  if(CMAKE_VERSION VERSION_LESS "3.1")
++    _pkg_check_modules_internal(0 0 ${_prefix} "${_package}")
++  else(CMAKE_VERSION VERSION_LESS "3.1")
++    _pkg_check_modules_internal(0 0 0 0 ${_prefix} "${_package}")
++  endif(CMAKE_VERSION VERSION_LESS "3.1")
++    
+   if(${_prefix}_FOUND)
+     cmake_link_flags(${_link_FLAGS} "${${_xprefix}_LDFLAGS}")
+     # If libraries cannot be not found, then that is equivalent to whole
